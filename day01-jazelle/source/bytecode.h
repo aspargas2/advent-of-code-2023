@@ -75,8 +75,10 @@ NO_ARGS(aload_2, 0x2C)
 NO_ARGS(aload_3, 0x2D)
 ARG_1(aload, 0x19)
 
+NO_ARGS(aaload, 0x32)
 NO_ARGS(iaload, 0x2E)
 NO_ARGS(baload, 0x33)
+NO_ARGS(aastore, 0x53)
 NO_ARGS(iastore, 0x4F)
 NO_ARGS(bastore, 0x54)
 
