@@ -1,0 +1,155 @@
+segment p 0000
+br 0x0000$0800 always// reset vector
+br 0x0000$3000 always
+br 0x0000$3000 always
+br 0x0000$3000 always // int0
+data 0000
+data 0000
+data 0000
+data 0000
+data 0000
+data 0000
+br 0x0000$3000 always // int1
+data 0000
+data 0000
+data 0000
+data 0000
+data 0000
+data 0000
+br 0x0000$3000 always // int2
+
+segment p 0800
+load 0x0080u8 page // pre-write shutdown sequence
+clr b0 always
+mov b0l [page:0x00c8u8] // T_REPLY2
+
+load 0x0000u8 page
+// wait for ARM11 to say go
+mov [page:0x0000u8] r0
+cmpv 0x$FFFF r0
+brr 0xfffc neq
+
+// Say hello :)
+load 0x007fu8 page
+mov 0x$6968 r0 // "hi"
+mov r0 [page:0x0031u8]
+mov r0 [page:0x0032u8]
+mov 0x$3A20 r0 // " :"
+mov r0 [page:0x0033u8]
+mov 0x$0044 r0 // "D\0"
+mov r0 [page:0x0034u8]
+
+// index
+mov 0x$0001 r7
+// sum
+clr a1 always
+
+//main loop
+mov 0x$0001 r6 // set possible flag
+addv 0x$0004 r7 // skip "ame "
+call 0x0000$1200 always
+cmpv 0x$0000 r0
+call 0x0000$0F00 eq
+mov r0 r4
+addv 0x$0001 r7
+//inner loop
+//call 0x0000$0F00 le
+call 0x0000$1200 always
+mov r0 r2
+mov r7 r0
+call 0x0000$1000 always
+clr a0 always
+cmpv 0x$0072 r0 // 'r'
+brr 0x0005 neq // to g check
+mov 0x$000c a0
+addv 0x$0005 r7
+brr 0x000b always // to "cmp r2 a0"
+cmpv 0x$0067 r0 // 'g'
+brr 0x0005 neq // to b
+mov 0x$000d a0
+addv 0x$0007 r7
+brr 0x0004 always // to "cmp r2 a0"
+// 'b'
+mov 0x$000e a0
+addv 0x$0006 r7
+cmp r2 a0
+brr 0x0002 ge // skip next instr
+mov 0x$0000 r6 // clear possible flag
+
+mov r7 r0
+call 0x0000$1000 always
+cmpv 0x$0030 r0
+brr 0x0004 lt
+cmpv 0x$0039 r0
+brr 0x0001 gt
+brr 0xffd7 always // to inner loop
+
+cmpv 0x$0000 r6
+brr 0x0001 eq
+add r4 a1
+brr 0xffc5 always // to main loop
+call 0x0000$0F00 always
+
+segment p 0F00
+load 0x007fu8 page
+ //call 0x0000$1200 always
+ mov r2 [page:0x0018u8]
+ mov a0l [page:0x0019u8]
+ mov r6 r0
+ mov r0 [page:0x001au8]
+ mov r7 r0
+ mov r0 [page:0x001bu8]
+// Give sum to ARM11
+mov a1l [page:0x0010u8]
+// Tell ARM11 we're done, then loop forever
+load 0x0000u8 page
+mov 0x$0001 r0
+mov r0 [page:0x0000u8]
+brr 0xffff always
+
+
+// read char from input; index in r0; returns in r0; clobbers r1, a0
+segment p 1000
+mov r0 a0
+shr a0 always
+mov a0l r1
+addv 0x$1000 r1
+mov [r1] r1
+mov r0 a0
+and 0x$0001 a0
+brr 0x0004 neq // to "mov r1 a0"
+mov r1 a0
+and 0x$00FF a0
+brr 0x0003 always // to "mov a0l r0"
+mov r1 a0
+shr4 a0 always
+shr4 a0 always
+mov a0l r0
+ret always
+
+
+// atoi; index in r7 gets advanced 2 past last digit; returns in r0; clobbers r1, a0
+segment p 1200
+clr a0 always
+mov r7 r0
+addv 0x$0001 r7
+push a0
+call 0x0000$1000 always
+pop a0
+cmpv 0x$0030 r0
+brr 0x000d lt //break to "mov a0l r0"
+cmpv 0x$0039 r0
+brr 0x000a gt //break to "mov a0l r0"
+subv 0x$0030 r0
+// multiply a0 by 10
+mov a0l r1
+shl a0 always
+shl a0 always
+shl a0 always
+add r1 a0
+add r1 a0
+//add new digit
+add r0 a0
+brr 0xffe9 always // "mov r7 r0"
+mov a0l r0
+ret always
