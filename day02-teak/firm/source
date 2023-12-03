@@ -41,17 +41,26 @@ mov r0 [page:0x0034u8]
 
 // index
 mov 0x$0001 r7
-// sum
+// part 1 sum
 clr a1 always
+// part 2 sum
+clr b1 always
 
+segment p 0900
 //main loop
 mov 0x$0001 r6 // set possible flag
+mov 0x$0000 r0
+mov r0 [page:0x0000u8]
+mov r0 [page:0x0001u8]
+mov r0 [page:0x0002u8]
 addv 0x$0004 r7 // skip "ame "
 call 0x0000$1200 always
 cmpv 0x$0000 r0
 call 0x0000$0F00 eq
 mov r0 r4
 addv 0x$0001 r7
+
+//data ffff
 //inner loop
 //call 0x0000$0F00 le
 call 0x0000$1200 always
@@ -60,21 +69,29 @@ mov r7 r0
 call 0x0000$1000 always
 clr a0 always
 cmpv 0x$0072 r0 // 'r'
-brr 0x0005 neq // to g check
+brr 0x0007 neq // to g check
 mov 0x$000c a0
 addv 0x$0005 r7
-brr 0x000b always // to "cmp r2 a0"
+mov 0x$7f00 r1
+brr 0x0010 always // to "cmp r2 a0"
 cmpv 0x$0067 r0 // 'g'
-brr 0x0005 neq // to b
+brr 0x0007 neq // to b
 mov 0x$000d a0
 addv 0x$0007 r7
-brr 0x0004 always // to "cmp r2 a0"
+mov 0x$7f01 r1
+brr 0x0006 always // to "cmp r2 a0"
 // 'b'
 mov 0x$000e a0
 addv 0x$0006 r7
+mov 0x$7f02 r1
 cmp r2 a0
 brr 0x0002 ge // skip next instr
 mov 0x$0000 r6 // clear possible flag
+
+mov [r1] a0
+cmp r2 a0
+brr 0x0001 ge
+mov r2 [r1]
 
 mov r7 r0
 call 0x0000$1000 always
@@ -82,12 +99,30 @@ cmpv 0x$0030 r0
 brr 0x0004 lt
 cmpv 0x$0039 r0
 brr 0x0001 gt
-brr 0xffd7 always // to inner loop
+brr 0xffcd always // to inner loop
+data ffff
 
 cmpv 0x$0000 r6
 brr 0x0001 eq
 add r4 a1
-brr 0xffc5 always // to main loop
+
+push a1
+clr a0 always
+clr a1 always
+mov [page:0x0000u8] y0
+mov [page:0x0001u8] a0l
+mpy y0 a0l a1
+clr b0 always
+clr a1 always
+add p0 b0
+mov [page:0x0002u8] y0
+mpy y0 b0l a1
+pop a1
+clr b0 always
+add p0 b1
+
+br 0x0000$0900 always // to main loop
+//data ffff
 call 0x0000$0F00 always
 
 segment p 0F00
@@ -99,8 +134,9 @@ load 0x007fu8 page
  mov r0 [page:0x001au8]
  mov r7 r0
  mov r0 [page:0x001bu8]
-// Give sum to ARM11
+// Give sums to ARM11
 mov a1l [page:0x0010u8]
+mov b1l [page:0x0011u8]
 // Tell ARM11 we're done, then loop forever
 load 0x0000u8 page
 mov 0x$0001 r0

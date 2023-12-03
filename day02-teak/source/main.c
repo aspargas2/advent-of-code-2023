@@ -52,7 +52,7 @@ int main() {
 
 	printf("DSP says %s\n", (char*) (dspD + 0x7f31));
 	printf("Part 1: %hu\n", dspD[0x7f10]);
-	//printf("Part 2: %lu\n", *((u32*) (dspD + 0x12))); // This one got quite large
+	printf("Part 2: %hu\n", dspD[0x7f11]);
 	printf("debug: %hu %hu %hu %hu\n", dspD[0x7f18], dspD[0x7f19], dspD[0x7f1A], dspD[0x7f1B]);
 
 end:
