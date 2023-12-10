@@ -1,0 +1,3 @@
+Day 3 was completed in ARMv5 (ARM9) assembly and run in the pre-OS firmware context on the ARMv5TE in my New 2DS XL: [output.jpg](output.jpg). This is technically the first day this year done in an arch I didn't use [last year](https://github.com/aspargas2/advent-of-code-2022), but it's a totally boring one since I used ARM7 last year. There will be true new archs eventuall, I promise.
+
+I know I'm super behind now, but I'm still planning to catch up and finish everything by the end of the year... ~~[hopefully](https://github.com/aspargas2/advent-of-code-2022/commit/6de38d00615f14d780267b853fc386c8798029c5).~~
