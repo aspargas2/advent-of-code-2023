@@ -12,7 +12,8 @@ SECTIONS
 	. = ALIGN(4);
 	__loaded_end = .;
 	
-	. = 0xFFF00000;
+#	. = 0xFFF00000;
+	. = 0x08080000; # need more wams
 	.bss        : ALIGN(4) { __bss_start = .; *(.bss* COMMON); . = ALIGN(4); __bss_end = .;}
 
 	. = ALIGN(4);
